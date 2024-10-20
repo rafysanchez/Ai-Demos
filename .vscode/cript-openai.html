@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criptografia de Texto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        textarea, input[type="text"], select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .encrypt-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .decrypt-btn {
+            background-color: #ffc107;
+            color: black;
+        }
+        .copy-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .result {
+            padding: 10px;
+            margin-top: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            min-height: 100px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Criptografia de Texto 🔒🔐🔑</h1>
+
+        <label for="text">Texto Original (para criptografar) 📝 / Texto Criptografado (para descriptografar) 🔏:</label>
+        <textarea id="text" rows="4" placeholder="Cole o texto aqui..."></textarea>
+
+        <label for="key">Chave de Criptografia/Descriptografia (difícil de quebrar) 🔑:</label>
+        <input type="text" id="key" placeholder="Digite a chave aqui...">
+
+        <button id="generateKey" class="copy-btn">Gerar Chave 🎲</button>
+        <select id="keyLength">
+            <option value="16">16 caracteres</option>
+            <option value="24">24 caracteres</option>
+            <option value="32" selected>32 caracteres</option>
+        </select>
+
+        <button id="encryptBtn" class="encrypt-btn">Criptografar 🔒</button>
+        <button id="decryptBtn" class="decrypt-btn">Descriptografar 🔓</button>
+
+        <h3>Resultado: 📊</h3>
+        <div id="result" class="result"></div>
+
+        <button id="copyBtn" class="copy-btn">Copiar 📋</button>
+    </div>
+
+    <script>
+        function generateKey(length) {
+            let result = '';
+            const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            }
+            return result;
+        }
+
+        function encrypt(text, key) {
+            let encrypted = '';
+            for (let i = 0; i < text.length; i++) {
+                const charCode = text.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+                encrypted += String.fromCharCode(charCode);
+            }
+            return btoa(encrypted); // Convert to base64 for better readability
+        }
+
+        function decrypt(encryptedText, key) {
+            let decoded = atob(encryptedText); // Decode base64
+            let decrypted = '';
+            for (let i = 0; i < decoded.length; i++) {
+                const charCode = decoded.charCodeAt(i) ^ key.charCodeAt(i % key.length);
+                decrypted += String.fromCharCode(charCode);
+            }
+            return decrypted;
+        }
+
+        document.getElementById('generateKey').addEventListener('click', function () {
+            const length = parseInt(document.getElementById('keyLength').value);
+            const newKey = generateKey(length);
+            document.getElementById('key').value = newKey;
+        });
+
+        document.getElementById('encryptBtn').addEventListener('click', function () {
+            const text = document.getElementById('text').value;
+            const key = document.getElementById('key').value;
+            if (text === '' || key === '') {
+                alert('Por favor, insira tanto o texto quanto a chave.');
+                return;
+            }
+            const encryptedText = encrypt(text, key);
+            document.getElementById('result').textContent = encryptedText;
+        });
+
+        document.getElementById('decryptBtn').addEventListener('click', function () {
+            const encryptedText = document.getElementById('text').value;
+            const key = document.getElementById('key').value;
+            if (encryptedText === '' || key === '') {
+                alert('Por favor, insira tanto o texto quanto a chave.');
+                return;
+            }
+            const decryptedText = decrypt(encryptedText, key);
+            document.getElementById('result').textContent = decryptedText;
+        });
+
+        document.getElementById('copyBtn').addEventListener('click', function () {
+            const resultText = document.getElementById('result').textContent;
+            navigator.clipboard.writeText(resultText).then(function() {
+                alert('Texto copiado com sucesso!');
+            }, function() {
+                alert('Falha ao copiar o texto.');
+            });
+        });
+    </script>
+    
+</body>
+</html>

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criptografia de Texto</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { max-width: 600px; }
+        .form-group { margin-bottom: 20px; }
+        .btn { margin-top: 10px; }
+        #resultado { background-color: #f0f0f0; padding: 10px; border: 1px solid #ddd; }
+        .chave { font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Criptografia de Texto <i class="fas fa-lock"></i></h2>
+        <form>
+            <div class="form-group">
+                <label for="texto-original">Texto Original (para criptografar) / Texto Criptografado (para descriptografar):</label>
+                <textarea id="texto-original" class="form-control" rows="5" placeholder="Cole o texto aqui..."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="chave">Chave de Criptografia/Descriptografia <span class="chave">(dificil de quebrar)</span>:</label>
+                <input type="text" id="chave" class="form-control" placeholder="Digite a chave aqui...">
+            </div>
+            <button class="btn btn-primary" onclick="criptografar(); return false;">Criptografar</button>
+            <button class="btn btn-warning" onclick="descriptografar(); return false;">Descriptografar</button>
+            <div class="form-group">
+                <label for="resultado">Resultado:</label>
+                <textarea id="resultado" class="form-control" rows="5" readonly></textarea>
+                <button class="btn btn-success float-right" onclick="copiarTexto()">Copiar</button>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script>
+        function criptografar() {
+            var texto = document.getElementById("texto-original").value;
+            var chave = document.getElementById("chave").value;
+            if (chave.length < 8) {
+                alert("Chave muito curta! Use pelo menos 8 caracteres.");
+                return;
+            }
+            var encrypted = CryptoJS.AES.encrypt(texto, chave).toString();
+            document.getElementById("resultado").value = encrypted;
+        }
+
+        function descriptografar() {
+            var texto = document.getElementById("texto-original").value;
+            var chave = document.getElementById("chave").value;
+            if (chave.length < 8) {
+                alert("Chave muito curta! Use pelo menos 8 caracteres.");
+                return;
+            }
+            try {
+                var decrypted = CryptoJS.AES.decrypt(texto, chave).toString(CryptoJS.enc.Utf8);
+                document.getElementById("resultado").value = decrypted;
+            } catch (e) {
+                document.getElementById("resultado").value = "Erro: Chave inválida ou texto não criptografado.";
+            }
+        }
+
+        function copiarTexto() {
+            var texto = document.getElementById("resultado");
+            texto.select();
+            document.execCommand("copy");
+            alert("Texto copiado para a área de transferência!");
+        }
+    </script>
+</body>
+</html>

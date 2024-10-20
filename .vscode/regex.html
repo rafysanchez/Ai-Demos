@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RegexGenie Aprimorado</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        header, footer {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        form {
+            margin-bottom: 15px;
+        }
+        fieldset {
+            border: none;
+            padding: 0;
+            margin-bottom: 15px;
+        }
+        legend {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #generated-regex, #explained-regex {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        ul {
+            padding-left: 20px;
+        }
+        code {
+            background-color: #ecf0f1;
+            padding: 2px 4px;
+            border-radius: 3px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>RegexGenie Aprimorado</h1>
+        </header>
+        
+        <main>
+            <!-- Gerador de Regex -->
+            <section class="generator">
+                <h2>Gerador de Regex</h2>
+                <form id="regex-form">
+                    <fieldset>
+                        <legend>Escolha o tipo de regex:</legend>
+                        <div>
+                            <input type="radio" id="emailRegex" name="regexType" value="email" checked>
+                            <label for="emailRegex">E-mail</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="phoneRegex" name="regexType" value="phone">
+                            <label for="phoneRegex">Número de Telefone</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="urlRegex" name="regexType" value="url">
+                            <label for="urlRegex">URL</label>
+                        </div>
+                        <div>
+                            <input type="radio" id="passwordRegex" name="regexType" value="password">
+                            <label for="passwordRegex">Senha Forte</label>
+                        </div>
+                    </fieldset>
+                    <button type="submit">Gerar Regex</button>
+                </form>
+                <div id="generated-regex" aria-live="polite"></div>
+            </section>
+            
+            <!-- Explicador de Regex -->
+            <section class="explainer">
+                <h2>Explicador de Regex</h2>
+                <div id="explained-regex" aria-live="polite"></div>
+            </section>
+            
+            <!-- Biblioteca de Exemplos -->
+            <section class="library">
+                <h2>Biblioteca de Exemplos</h2>
+                <ul id="regex-library"></ul>
+            </section>
+            
+            <!-- Tutorial -->
+            <section class="tutorial">
+                <h2>Tutorial de Regex</h2>
+                <ul id="regex-tutorial"></ul>
+            </section>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023 RegexGenie. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('regex-form');
+            const generatedRegex = document.getElementById('generated-regex');
+            const explainedRegex = document.getElementById('explained-regex');
+            const regexLibrary = document.getElementById('regex-library');
+            const regexTutorial = document.getElementById('regex-tutorial');
+
+            const regexPatterns = {
+                email: {
+                    pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                    explanation: 'Valida endereços de e-mail simples.',
+                    example: 'usuario@exemplo.com'
+                },
+                phone: {
+                    pattern: /^\+?(\d{2})?\s?(\d{2})\s?(\d{4,5})-?(\d{4})$/,
+                    explanation: 'Valida números de telefone brasileiros, com ou sem código de país e DDD.',
+                    example: '+55 11 98765-4321'
+                },
+                url: {
+                    pattern: /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/,
+                    explanation: 'Valida URLs simples, com ou sem protocolo.',
+                    example: 'https://www.exemplo.com.br'
+                },
+                password: {
+                    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+                    explanation: 'Valida senhas fortes com pelo menos 8 caracteres, incluindo maiúsculas, minúsculas, números e caracteres especiais.',
+                    example: 'Senha@123'
+                }
+            };
+
+            function generateRegex(type) {
+                const regex = regexPatterns[type];
+                generatedRegex.innerHTML = `<strong>Regex Gerada:</strong> <code>${regex.pattern.toString()}</code>`;
+                explainedRegex.innerHTML = `
+                    <strong>Explicação:</strong><br>
+                    ${regex.explanation}<br>
+                    <strong>Exemplo:</strong> ${regex.example}
+                `;
+            }
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const selectedType = document.querySelector('input[name="regexType"]:checked').value;
+                generateRegex(selectedType);
+            });
+
+            // Preencher a biblioteca de exemplos
+            for (const [key, value] of Object.entries(regexPatterns)) {
+                const li = document.createElement('li');
+                li.innerHTML = `<strong>${key.charAt(0).toUpperCase() + key.slice(1)}:</strong> <code>${value.pattern.toString()}</code>`;
+                regexLibrary.appendChild(li);
+            }
+
+            // Preencher o tutorial
+            const tutorialItems = [
+                'Use <code>^</code> para indicar o início da string e <code>$</code> para o final.',
+                'Use <code>[...]</code> para definir um conjunto de caracteres permitidos.',
+                'Use <code>\\d</code> para representar qualquer dígito.',
+                'Use <code>\\w</code> para representar qualquer caractere alfanumérico ou underscore.',
+                'Use <code>*</code> para indicar zero ou mais ocorrências, <code>+</code> para uma ou mais, e <code>?</code> para zero ou uma.',
+                'Use <code>{n}</code> para especificar exatamente n ocorrências, <code>{n,}</code> para n ou mais, e <code>{n,m}</code> para entre n e m ocorrências.',
+                'Use <code>(?=...)</code> para lookahead positivo e <code>(?!...)</code> para lookahead negativo.'
+            ];
+
+            tutorialItems.forEach(item => {
+                const li = document.createElement('li');
+                li.innerHTML = item;
+                regexTutorial.appendChild(li);
+            });
+        });
+    </script>
+</body>
+</html>

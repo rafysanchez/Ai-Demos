@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor Base64 e Gerador de Chave</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="bg-primary text-white text-center py-3">
+        <h1>Conversor Base64 e Gerador de Chave</h1>
+    </header>
+
+    <main class="container my-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card mb-4">
+                    <div class="card-header bg-info text-white">
+                        <h3>Gerador de Chave</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label for="tamanho-chave">Tamanho da Chave:</label>
+                            <select id="tamanho-chave" class="form-control">
+                                <option value="10">10 caracteres</option>
+                                <option value="16">16 caracteres</option>
+                                <option value="32" selected>32 caracteres</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="chave-gerada">Chave Gerada:</label>
+                            <input type="text" id="chave-gerada" class="form-control" readonly>
+                        </div>
+                        <button class="btn btn-primary" onclick="gerarChave()">
+                            <i class="fas fa-key"></i> Gerar Chave
+                        </button>
+                        <button class="btn btn-success" onclick="copiarChave()">
+                            <i class="far fa-copy"></i> Copiar Chave
+                        </button>
+                    </div>
+                </div>
+
+                <form>
+                    <div class="form-group">
+                        <label for="texto-original">Texto Original:</label>
+                        <textarea id="texto-original" class="form-control" rows="5" placeholder="Digite o texto para converter..."></textarea>
+                    </div>
+                    <div class="btn-group d-flex justify-content-between mb-3">
+                        <button class="btn btn-primary" onclick="converterParaBase64(); return false;">
+                            <i class="fas fa-lock"></i> Converter para Base64
+                        </button>
+                        <button class="btn btn-secondary" onclick="converterDeBase64(); return false;">
+                            <i class="fas fa-unlock"></i> Converter de Base64
+                        </button>
+                    </div>
+                    <div class="form-group">
+                        <label for="resultado">Resultado:</label>
+                        <textarea id="resultado" class="form-control" rows="5" readonly></textarea>
+                    </div>
+                    <button class="btn btn-success float-right" onclick="copiarTexto()">
+                        <i class="far fa-copy"></i> Copiar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-light text-center py-3 mt-5">
+        <p>&copy; 2023 Conversor Base64 e Gerador de Chave. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

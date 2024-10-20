@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to right, #3498db, #8e44ad);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            width: 300px;
+        }
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 1.5rem;
+        }
+        .input-group {
+            margin-bottom: 1rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+        button {
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .links {
+            text-align: center;
+            margin-top: 1rem;
+        }
+        .links a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .links a:hover {
+            text-decoration: underline;
+        }
+        #forgotPasswordForm {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 id="formTitle">Login</h2>
+        <form id="authForm">
+            <div class="input-group">
+                <input type="text" id="username" placeholder="Username" required>
+            </div>
+            <div class="input-group" id="emailGroup" style="display: none;">
+                <input type="email" id="email" placeholder="Email">
+            </div>
+            <div class="input-group">
+                <input type="password" id="password" placeholder="Password" required>
+            </div>
+            <button type="submit" id="submitBtn">Login</button>
+        </form>
+        <form id="forgotPasswordForm">
+            <div class="input-group">
+                <input type="email" id="resetEmail" placeholder="Enter your email" required>
+            </div>
+            <button type="submit" id="resetPasswordBtn">Reset Password</button>
+        </form>
+        <div class="links">
+            <a href="#" id="forgotPassword">Forgot Password?</a>
+            <br>
+            <a href="#" id="toggleAuth">Don't have an account? Sign Up</a>
+        </div>
+    </div>
+
+    <script>
+        const formTitle = document.getElementById('formTitle');
+        const authForm = document.getElementById('authForm');
+        const emailGroup = document.getElementById('emailGroup');
+        const submitBtn = document.getElementById('submitBtn');
+        const forgotPassword = document.getElementById('forgotPassword');
+        const toggleAuth = document.getElementById('toggleAuth');
+        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
+        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+
+        let isLogin = true;
+
+        toggleAuth.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLogin = !isLogin;
+            formTitle.textContent = isLogin ? 'Login' : 'Sign Up';
+            submitBtn.textContent = isLogin ? 'Login' : 'Sign Up';
+            emailGroup.style.display = isLogin ? 'none' : 'block';
+            forgotPassword.style.display = isLogin ? 'inline' : 'none';
+            toggleAuth.textContent = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
+        });
+
+        authForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+
+            if (isLogin) {
+                console.log('Logging in with:', { username, password });
+                // Add your login logic here
+            } else {
+                console.log('Signing up with:', { username, email, password });
+                // Add your sign up logic here
+            }
+        });
+
+        forgotPassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            authForm.style.display = 'none';
+            forgotPasswordForm.style.display = 'block';
+            formTitle.textContent = 'Reset Password';
+            toggleAuth.style.display = 'none';
+            forgotPassword.style.display = 'none';
+        });
+
+        forgotPasswordForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const resetEmail = document.getElementById('resetEmail').value;
+            console.log('Resetting password for:', resetEmail);
+            // Aqui você adicionaria a lógica para enviar um e-mail de redefinição de senha
+            alert('Se um usuário com este e-mail existir, um link de redefinição de senha será enviado.');
+            
+            // Resetar o formulário e voltar para a tela de login
+            forgotPasswordForm.reset();
+            forgotPasswordForm.style.display = 'none';
+            authForm.style.display = 'block';
+            formTitle.textContent = 'Login';
+            toggleAuth.style.display = 'inline';
+            forgotPassword.style.display = 'inline';
+        });
+
+        forgotPassword.addEventListener('click', (e) => {
+            e.preventDefault();
+            console.log('Forgot password clicked');
+            // Add your forgot password logic here
+        });
+    </script>
+</body>
+</html>
