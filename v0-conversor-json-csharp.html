@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor C# - JSON</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .textarea-container {
+            height: calc(100vh - 150px);
+        }
+        textarea {
+            height: 100%;
+            resize: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid mt-4">
+        <h1 class="text-center mb-4">Conversor C# - JSON</h1>
+        <div class="row">
+            <div class="col-md-5 textarea-container">
+                <h3>Origem</h3>
+                <textarea id="input" class="form-control h-100" placeholder="Cole seu código C# ou JSON aqui"></textarea>
+            </div>
+            <div class="col-md-2 d-flex flex-column justify-content-center align-items-center">
+                <select id="conversionType" class="form-control mb-3">
+                    <option value="csharpToJson">C# para JSON</option>
+                    <option value="jsonToCsharp">JSON para C#</option>
+                </select>
+                <button id="convertBtn" class="btn btn-primary">Converter</button>
+            </div>
+            <div class="col-md-5 textarea-container">
+                <h3>Resultado</h3>
+                <textarea id="output" class="form-control h-100" readonly></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('convertBtn').addEventListener('click', convert);
+
+        function convert() {
+            const input = document.getElementById('input').value;
+            const conversionType = document.getElementById('conversionType').value;
+            const output = document.getElementById('output');
+
+            if (conversionType === 'csharpToJson') {
+                output.value = csharpToJson(input);
+            } else {
+                output.value = jsonToCsharp(input);
+            }
+        }
+
+        function csharpToJson(csharpCode) {
+            // Esta é uma implementação simplificada e não cobre todos os casos
+            const properties = csharpCode.match(/public\s+\w+\s+(\w+)\s*{\s*get;\s*set;\s*}/g);
+            if (!properties) return 'Erro: Não foi possível encontrar propriedades válidas.';
+
+            const jsonObj = {};
+            properties.forEach(prop => {
+                const [, type, name] = prop.match(/public\s+(\w+)\s+(\w+)/);
+                jsonObj[name] = getDefaultValue(type);
+            });
+
+            return JSON.stringify(jsonObj, null, 2);
+        }
+
+        function jsonToCsharp(jsonString) {
+            try {
+                const jsonObj = JSON.parse(jsonString);
+                let csharpCode = 'public class MyClass\n{\n';
+
+                for (const [key, value] of Object.entries(jsonObj)) {
+                    const type = getCSharpType(value);
+                    csharpCode += `    public ${type} ${key} { get; set; }\n`;
+                }
+
+                csharpCode += '}';
+                return csharpCode;
+            } catch (error) {
+                return 'Erro: JSON inválido.';
+            }
+        }
+
+        function getDefaultValue(type) {
+            switch (type.toLowerCase()) {
+                case 'int': return 0;
+                case 'double': return 0.0;
+                case 'bool': return false;
+                case 'string': return '';
+                default: return null;
+            }
+        }
+
+        function getCSharpType(value) {
+            if (typeof value === 'number') return Number.isInteger(value) ? 'int' : 'double';
+            if (typeof value === 'boolean') return 'bool';
+            if (typeof value === 'string') return 'string';
+            return 'object';
+        }
+    </script>
+</body>
+</html>

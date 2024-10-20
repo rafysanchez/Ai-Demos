@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JSON to C# Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0;
+    }
+    header {
+      background-color: #4CAF50;
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      margin-bottom: 20px;
+    }
+    h1 {
+      margin: 0;
+    }
+    .content {
+      padding: 0 20px;
+    }
+    .container {
+      display: flex;
+      gap: 20px;
+      flex-direction: column;
+    }
+    .row {
+      display: flex;
+      gap: 20px;
+      height: 400px; /* Definindo uma altura fixa para a linha */
+    }
+    .column {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+    textarea, pre {
+      width: 100%;
+      height: 100%; /* Ocupar toda a altura da coluna */
+      margin-bottom: 10px;
+      box-sizing: border-box;
+      resize: none; /* Impedir redimensionamento manual */
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .buttons button {
+      flex: 1;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-bottom: 10px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    pre {
+      background-color: #f4f4f4;
+      border: 1px solid #ddd;
+      border-left: 3px solid #4CAF50;
+      padding: 15px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      overflow-y: auto;
+    }
+    #copyButton {
+      background-color: #008CBA;
+    }
+    #copyButton:hover {
+      background-color: #007B9A;
+    }
+    .file-input-wrapper {
+      margin-bottom: 10px;
+    }
+    .file-input-wrapper input[type="file"] {
+      display: none;
+    }
+    .file-input-wrapper label {
+      display: inline-block;
+      padding: 10px;
+      background-color: #008CBA;
+      color: white;
+      cursor: pointer;
+      text-align: center;
+      width: 100%;
+      box-sizing: border-box;
+    }
+    .file-input-wrapper label:hover {
+      background-color: #007B9A;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>JSON to C# Converter</h1>
+  </header>
+  <div class="content">
+    <div class="container">
+      <div class="file-input-wrapper">
+        <label for="fileInput">Upload JSON or C# File</label>
+        <input type="file" id="fileInput" accept=".json,.cs,.txt" onchange="handleFileUpload(event)">
+      </div>
+      <div class="row">
+        <div class="column">
+          <textarea id="jsonInput" placeholder="Paste your JSON here..."></textarea>
+        </div>
+        <div class="column pre">
+            <textarea id="csharpOutput">...</textarea>
+
+        </div>
+      </div>
+      <div class="buttons">
+        <button onclick="convertToCSharp()">Convert to C#</button>
+        <button id="copyButton" onclick="copyToClipboard()" style="display: none;">Copy Result</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function convertToCSharp() {
+      const jsonInput = document.getElementById('jsonInput').value;
+      if (!jsonInput.trim()) {
+        document.getElementById('csharpOutput').textContent = '';
+        document.getElementById('copyButton').style.display = 'none';
+        return;
+      }
+      
+      let json;
+      try {
+        json = JSON.parse(jsonInput);
+      } catch (e) {
+        alert('Invalid JSON input. Please check your JSON and try again.');
+        return;
+      }
+
+      const csharpClasses = generateCSharpClasses(json);
+      document.getElementById('csharpOutput').textContent = csharpClasses;
+      document.getElementById('copyButton').style.display = 'block';
+    }
+
+    function copyToClipboard() {
+      const csharpOutput = document.getElementById('csharpOutput');
+      const textArea = document.createElement('textarea');
+      textArea.value = csharpOutput.textContent;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      alert('Result copied to clipboard!');
+    }
+
+    function generateCSharpClasses(json, className = 'Welcome') {
+      let output = 'namespace SeuNameSpace\n{\n';
+      output += '    using System;\n';
+      output += '    using System.Collections.Generic;\n\n';
+      output += '    using System.Globalization;\n';
+      output += '    using Newtonsoft.Json;\n';
+      output += '    using Newtonsoft.Json.Converters;\n\n';
+
+      function generateClass(obj, name) {
+        let classOutput = `    public partial class ${name}\n    {\n`;
+        for (const [key, value] of Object.entries(obj)) {
+          const propertyType = getPropertyType(value);
+          const propertyName = capitalize(key);
+          classOutput += `        [JsonProperty("${key}")]\n`;
+          classOutput += `        public ${propertyType} ${propertyName} { get; set; }\n\n`;
+        }
+        classOutput += '    }\n\n';
+        return classOutput;
+      }
+
+      function getPropertyType(value) {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            return `${getPropertyType(value[0])}[]`;
+          }
+          return 'object[]';
+        } else if (typeof value === 'object' && value !== null) {
+          const className = capitalize(Object.keys(value)[0]);
+          output += generateClass(value, className);
+          return className;
+        } else if (typeof value === 'string') {
+          return 'string';
+        } else if (typeof value === 'number') {
+          return Number.isInteger(value) ? 'long' : 'double';
+        } else if (typeof value === 'boolean') {
+          return 'bool';
+        }
+        return 'object';
+      }
+
+      function capitalize(str) {
+        return str.charAt(0).toUpperCase() + str.slice(1);
+      }
+
+      output += generateClass(json, className);
+      output += '}';
+      return output;
+    }
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('jsonInput').value = e.target.result;
+      };
+      reader.readAsText(file);
+    }
+
+    // Initialize with the default JSON
+    // convertToCSharp();
+  </script>
+</body>
+</html>

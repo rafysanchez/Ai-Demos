@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor JSON-C#</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 300px;
+            margin-bottom: 10px;
+        }
+        button {
+            padding: 10px;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <h1>Conversor JSON-C#</h1>
+    <textarea id="input" placeholder="Cole seu JSON ou C# aqui"></textarea>
+    <div>
+        <button onclick="convertJsonToCSharp()">Converter JSON para C#</button>
+        <button onclick="convertCSharpToJson()">Converter C# para JSON</button>
+    </div>
+    <textarea id="output" readonly placeholder="Resultado aparecerá aqui"></textarea>
+    <button onclick="copyToClipboard()">Copiar Resultado</button>
+
+    <script>
+        function convertJsonToCSharp() {
+            const input = document.getElementById('input').value;
+            try {
+                const json = JSON.parse(input);
+                const csharpClasses = generateCSharpClasses(json);
+                document.getElementById('output').value = csharpClasses;
+            } catch (error) {
+                alert('Erro ao analisar o JSON. Verifique se o formato está correto.');
+            }
+        }
+
+        function generateCSharpClasses(obj, className = 'RootObject') {
+            let result = `public class ${className}\n{\n`;
+            for (const [key, value] of Object.entries(obj)) {
+                const propertyType = getCSharpType(value);
+                const propertyName = capitalize(key);
+                result += `    [JsonProperty("${key}")]\n`;
+                result += `    public ${propertyType} ${propertyName} { get; set; }\n\n`;
+            }
+            result += '}\n\n';
+
+            for (const [key, value] of Object.entries(obj)) {
+                if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                    result += generateCSharpClasses(value, capitalize(key));
+                } else if (Array.isArray(value) && value.length > 0 && typeof value[0] === 'object') {
+                    result += generateCSharpClasses(value[0], capitalize(key.slice(0, -1)));
+                }
+            }
+
+            return result;
+        }
+
+        function getCSharpType(value) {
+            if (typeof value === 'string') return 'string';
+            if (typeof value === 'number') {
+                return Number.isInteger(value) ? 'int' : 'double';
+            }
+            if (typeof value === 'boolean') return 'bool';
+            if (Array.isArray(value)) {
+                if (value.length === 0) return 'object[]';
+                return `${getCSharpType(value[0])}[]`;
+            }
+            if (typeof value === 'object' && value !== null) {
+                return capitalize(Object.keys(value)[0]);
+            }
+            return 'object';
+        }
+
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function convertCSharpToJson() {
+            alert('A conversão de C# para JSON ainda não está implementada.');
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('output');
+            output.select();
+            document.execCommand('copy');
+            alert('Resultado copiado para a área de transferência!');
+        }
+    </script>
+</body>
+</html>
+
