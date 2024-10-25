@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conversor JSON para Classes C#</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f2f5;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .textarea-container {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 300px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 14px;
+            resize: vertical;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .error {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Conversor JSON ⇄ C#</h1>
+        
+        <div class="textarea-container">
+            <h3>Entrada:</h3>
+            <textarea id="inputText" placeholder="Cole seu JSON ou código C# aqui..."></textarea>
+        </div>
+
+        <div class="button-container">
+            <button onclick="convertJsonToCSharp()">JSON → C#</button>
+            <button onclick="convertCSharpToJson()">C# → JSON</button>
+        </div>
+
+        <div class="textarea-container">
+            <h3>Resultado:</h3>
+            <textarea id="outputText" readonly></textarea>
+        </div>
+
+        <button onclick="copyToClipboard()">Copiar Resultado</button>
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        function convertJsonToCSharp() {
+            const input = document.getElementById('inputText').value;
+            const output = document.getElementById('outputText');
+            const errorDiv = document.getElementById('error');
+            
+            try {
+                const jsonObj = JSON.parse(input);
+                const result = generateCSharpClasses(jsonObj);
+                output.value = result;
+                errorDiv.textContent = '';
+            } catch (e) {
+                errorDiv.textContent = 'Erro ao processar JSON: ' + e.message;
+            }
+        }
+
+        function generateCSharpClasses(obj, namespace = 'RootNamespace') {
+            let result = `using System;\nusing System.Collections.Generic;\nusing Newtonsoft.Json;\n\nnamespace ${namespace}\n{\n`;
+            
+            function generateClass(obj, className) {
+                let classCode = `    public class ${className}\n    {\n`;
+                
+                for (const [key, value] of Object.entries(obj)) {
+                    const propertyName = toPascalCase(key);
+                    const propertyType = getCSharpType(value, key);
+                    
+                    classCode += `        [JsonProperty("${key}")]\n`;
+                    classCode += `        public ${propertyType} ${propertyName} { get; set; }\n\n`;
+                }
+                
+                return classCode + '    }\n\n';
+            }
+            
+            // Generate main class
+            result += generateClass(obj, 'Root');
+            
+            // Generate nested classes
+            for (const [key, value] of Object.entries(obj)) {
+                if (typeof value === 'object' && value !== null && !Array.isArray(value)) {
+                    result += generateClass(value, toPascalCase(key));
+                }
+            }
+            
+            result += '}';
+            return result;
+        }
+
+        function getCSharpType(value, key) {
+            if (value === null) return 'object';
+            if (typeof value === 'string') return 'string';
+            if (typeof value === 'number') {
+                return Number.isInteger(value) ? 'long' : 'double';
+            }
+            if (typeof value === 'boolean') return 'bool';
+            if (Array.isArray(value)) {
+                const itemType = value.length > 0 ? 
+                    getCSharpType(value[0], key) : 
+                    'object';
+                return `List<${itemType}>`;
+            }
+            if (typeof value === 'object') {
+                return toPascalCase(key);
+            }
+            return 'object';
+        }
+
+        function toPascalCase(str) {
+            return str
+                .replace(/[-_\s]+(.)?/g, (_, c) => c ? c.toUpperCase() : '')
+                .replace(/^./, c => c.toUpperCase());
+        }
+
+        function convertCSharpToJson() {
+            // Placeholder for C# to JSON conversion
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = 'Conversão de C# para JSON ainda não implementada';
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputText');
+            output.select();
+            document.execCommand('copy');
+            
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = 'Conteúdo copiado para a área de transferência!';
+            errorDiv.style.color = 'green';
+            
+            setTimeout(() => {
+                errorDiv.textContent = '';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

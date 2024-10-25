@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Invaders</title>
+    <style>
+        body {
+            margin: 0;
+            background-color: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game {
+            position: relative;
+            width: 600px;
+            height: 400px;
+            border: 2px solid white;
+            overflow: hidden;
+        }
+
+        #player {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            width: 50px;
+            height: 30px;
+            background-color: green;
+            transform: translateX(-50%);
+        }
+
+        .enemy {
+            position: absolute;
+            width: 40px;
+            height: 30px;
+            background-color: red;
+        }
+
+        .bullet {
+            position: absolute;
+            width: 5px;
+            height: 10px;
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <div id="player"></div>
+        <div id="score">Pontuação: 0</div>
+        <div id="level">Nível: 1</div>
+        <audio id="explosion-sound" src="explosion.mp3" preload="auto"></audio> <!-- Adicionando o som -->
+    </div>
+    <script>
+        const game = document.getElementById('game');
+        const player = document.getElementById('player');
+        const scoreDisplay = document.getElementById('score');
+        const levelDisplay = document.getElementById('level');
+        const explosionSound = document.getElementById('explosion-sound'); // Referência ao som
+
+        let playerPosition = 275;
+        let bullets = [];
+        let enemies = [];
+        let score = 0;
+        let level = 1;
+        let enemyInterval;
+        let bulletInterval;
+
+        function startGame() {
+            createEnemies();
+            enemyInterval = setInterval(moveEnemies, 1000);
+            bulletInterval = setInterval(moveBullets, 50);
+        }
+
+        function createEnemies() {
+            enemies = []; // Reset enemies for new level
+            for (let i = 0; i < level + 4; i++) { // Increase number of enemies with level
+                const enemy = document.createElement('div');
+                enemy.classList.add('enemy');
+                enemy.style.left = `${i * 100 + 50}px`;
+                enemy.style.top = '0px';
+                enemies.push(enemy);
+                game.appendChild(enemy);
+            }
+        }
+
+        function moveEnemies() {
+            enemies.forEach((enemy, index) => {
+                let enemyTop = parseInt(enemy.style.top);
+                if (enemyTop < 400) {
+                    enemy.style.top = `${enemyTop + 20}px`;
+                } else {
+                    clearInterval(enemyInterval);
+                    alert('Game Over!');
+                    document.location.reload();
+                }
+            });
+        }
+
+        function moveBullets() {
+            bullets.forEach((bullet, index) => {
+                let bulletTop = parseInt(bullet.style.top);
+                if (bulletTop > 0) {
+                    bullet.style.top = `${bulletTop - 10}px`;
+                } else {
+                    bullet.remove();
+                    bullets.splice(index, 1);
+                }
+
+                enemies.forEach((enemy, enemyIndex) => {
+                    if (isColliding(bullet, enemy)) {
+                        bullet.remove();
+                        enemy.remove();
+                        bullets.splice(index, 1);
+                        enemies.splice(enemyIndex, 1);
+                        score += 10;
+                        scoreDisplay.innerText = `Pontuação: ${score}`;
+                        explosionSound.currentTime = 0; // Reiniciar o som
+                        explosionSound.play(); // Tocar som de explosão
+                        if (enemies.length === 0) {
+                            nextLevel();
+                        }
+                    }
+                });
+            });
+        }
+
+        function isColliding(bullet, enemy) {
+            const bulletRect = bullet.getBoundingClientRect();
+            const enemyRect = enemy.getBoundingClientRect();
+            return !(
+                bulletRect.top > enemyRect.bottom ||
+                bulletRect.bottom < enemyRect.top ||
+                bulletRect.right < enemyRect.left ||
+                bulletRect.left > enemyRect.right
+            );
+        }
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'ArrowLeft' && playerPosition > 0) {
+                playerPosition -= 10;
+                player.style.left = `${playerPosition}px`;
+            }
+            if (event.key === 'ArrowRight' && playerPosition < 550) {
+                playerPosition += 10;
+                player.style.left = `${playerPosition}px`;
+            }
+            if (event.key === ' ') {
+                createBullet();
+            }
+        });
+
+        function createBullet() {
+            const bullet = document.createElement('div');
+            bullet.classList.add('bullet');
+            bullet.style.left = `${playerPosition}px`;
+            bullet.style.top = '370px';
+            bullets.push(bullet);
+            game.appendChild(bullet);
+        }
+
+        function nextLevel() {
+            level++;
+            levelDisplay.innerText = `Nível: ${level}`;
+            createEnemies();
+        }
+
+        startGame();
+    </script>
+</body>
+</html>

@@ -3,165 +3,351 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Login Page</title>
+    <title>Authentication</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to right, #3498db, #8e44ad);
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            padding: 20px;
         }
+
         .container {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            width: 300px;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+            width: 100%;
+            max-width: 400px;
         }
-        h2 {
+
+        .form-title {
+            color: #2d3748;
+            font-size: 24px;
+            font-weight: 600;
             text-align: center;
-            color: #333;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
         }
-        .input-group {
-            margin-bottom: 1rem;
+
+        .form-group {
+            margin-bottom: 16px;
         }
-        .input-group input {
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+
+        .form-group input {
             width: 100%;
-            padding: 0.5rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 1rem;
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
         }
-        button {
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
             width: 100%;
-            padding: 0.75rem;
-            background-color: #3498db;
+            padding: 12px;
+            background: #667eea;
             color: white;
             border: none;
-            border-radius: 4px;
-            font-size: 1rem;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: background 0.2s;
         }
-        button:hover {
-            background-color: #2980b9;
+
+        .btn:hover {
+            background: #5a67d8;
         }
-        .links {
+
+        .form-links {
+            margin-top: 20px;
             text-align: center;
-            margin-top: 1rem;
         }
-        .links a {
-            color: #3498db;
+
+        .form-links a {
+            color: #667eea;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-size: 14px;
+            margin: 0 8px;
+            cursor: pointer;
         }
-        .links a:hover {
+
+        .form-links a:hover {
             text-decoration: underline;
         }
-        #forgotPasswordForm {
+
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 4px;
             display: none;
+        }
+
+        .success-message {
+            color: #38a169;
+            text-align: center;
+            margin-top: 16px;
+            display: none;
+        }
+
+        /* Animation */
+        .fade {
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .fade.active {
+            opacity: 1;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h2 id="formTitle">Login</h2>
-        <form id="authForm">
-            <div class="input-group">
-                <input type="text" id="username" placeholder="Username" required>
+        <h2 class="form-title">Login</h2>
+        
+        <!-- Login Form -->
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="loginUsername">Username</label>
+                <input type="text" id="loginUsername" required>
+                <div class="error-message" id="loginUsernameError"></div>
             </div>
-            <div class="input-group" id="emailGroup" style="display: none;">
-                <input type="email" id="email" placeholder="Email">
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" required>
+                <div class="error-message" id="loginPasswordError"></div>
             </div>
-            <div class="input-group">
-                <input type="password" id="password" placeholder="Password" required>
-            </div>
-            <button type="submit" id="submitBtn">Login</button>
+            <button type="submit" class="btn">Login</button>
         </form>
-        <form id="forgotPasswordForm">
-            <div class="input-group">
-                <input type="email" id="resetEmail" placeholder="Enter your email" required>
+
+        <!-- Sign Up Form -->
+        <form id="signupForm" style="display: none;">
+            <div class="form-group">
+                <label for="signupUsername">Username</label>
+                <input type="text" id="signupUsername" required>
+                <div class="error-message" id="signupUsernameError"></div>
             </div>
-            <button type="submit" id="resetPasswordBtn">Reset Password</button>
+            <div class="form-group">
+                <label for="signupEmail">Email</label>
+                <input type="email" id="signupEmail" required>
+                <div class="error-message" id="signupEmailError"></div>
+            </div>
+            <div class="form-group">
+                <label for="signupPassword">Password</label>
+                <input type="password" id="signupPassword" required>
+                <div class="error-message" id="signupPasswordError"></div>
+            </div>
+            <div class="form-group">
+                <label for="signupConfirmPassword">Confirm Password</label>
+                <input type="password" id="signupConfirmPassword" required>
+                <div class="error-message" id="signupConfirmPasswordError"></div>
+            </div>
+            <button type="submit" class="btn">Sign Up</button>
         </form>
-        <div class="links">
-            <a href="#" id="forgotPassword">Forgot Password?</a>
-            <br>
-            <a href="#" id="toggleAuth">Don't have an account? Sign Up</a>
+
+        <!-- Forgot Password Form -->
+        <form id="forgotForm" style="display: none;">
+            <div class="form-group">
+                <label for="forgotEmail">Email</label>
+                <input type="email" id="forgotEmail" required>
+                <div class="error-message" id="forgotEmailError"></div>
+            </div>
+            <button type="submit" class="btn">Reset Password</button>
+        </form>
+
+        <div class="success-message" id="successMessage"></div>
+
+        <div class="form-links">
+            <a id="toggleSignup">Don't have an account? Sign Up</a>
+            <a id="toggleForgot">Forgot Password?</a>
         </div>
     </div>
 
     <script>
-        const formTitle = document.getElementById('formTitle');
-        const authForm = document.getElementById('authForm');
-        const emailGroup = document.getElementById('emailGroup');
-        const submitBtn = document.getElementById('submitBtn');
-        const forgotPassword = document.getElementById('forgotPassword');
-        const toggleAuth = document.getElementById('toggleAuth');
-        const forgotPasswordForm = document.getElementById('forgotPasswordForm');
-        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+        // Form elements
+        const loginForm = document.getElementById('loginForm');
+        const signupForm = document.getElementById('signupForm');
+        const forgotForm = document.getElementById('forgotForm');
+        const formTitle = document.querySelector('.form-title');
+        const toggleSignup = document.getElementById('toggleSignup');
+        const toggleForgot = document.getElementById('toggleForgot');
+        const successMessage = document.getElementById('successMessage');
 
-        let isLogin = true;
+        // Current form tracker
+        let currentForm = 'login';
 
-        toggleAuth.addEventListener('click', (e) => {
-            e.preventDefault();
-            isLogin = !isLogin;
-            formTitle.textContent = isLogin ? 'Login' : 'Sign Up';
-            submitBtn.textContent = isLogin ? 'Login' : 'Sign Up';
-            emailGroup.style.display = isLogin ? 'none' : 'block';
-            forgotPassword.style.display = isLogin ? 'inline' : 'none';
-            toggleAuth.textContent = isLogin ? "Don't have an account? Sign Up" : "Already have an account? Login";
-        });
+        // Validation patterns
+        const patterns = {
+            username: /^[a-zA-Z0-9_]{4,20}$/,
+            email: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            password: /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+        };
 
-        authForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            const email = document.getElementById('email').value;
+        // Show error message
+        function showError(elementId, message) {
+            const errorElement = document.getElementById(elementId);
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
 
-            if (isLogin) {
-                console.log('Logging in with:', { username, password });
-                // Add your login logic here
-            } else {
-                console.log('Signing up with:', { username, email, password });
-                // Add your sign up logic here
-            }
-        });
+        // Clear error messages
+        function clearErrors() {
+            document.querySelectorAll('.error-message').forEach(error => {
+                error.style.display = 'none';
+            });
+            successMessage.style.display = 'none';
+        }
 
-        forgotPassword.addEventListener('click', (e) => {
-            e.preventDefault();
-            authForm.style.display = 'none';
-            forgotPasswordForm.style.display = 'block';
-            formTitle.textContent = 'Reset Password';
-            toggleAuth.style.display = 'none';
-            forgotPassword.style.display = 'none';
-        });
+        // Show success message
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+        }
 
-        forgotPasswordForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const resetEmail = document.getElementById('resetEmail').value;
-            console.log('Resetting password for:', resetEmail);
-            // Aqui você adicionaria a lógica para enviar um e-mail de redefinição de senha
-            alert('Se um usuário com este e-mail existir, um link de redefinição de senha será enviado.');
+        // Switch between forms
+        function switchForm(formType) {
+            clearErrors();
+            currentForm = formType;
             
-            // Resetar o formulário e voltar para a tela de login
-            forgotPasswordForm.reset();
-            forgotPasswordForm.style.display = 'none';
-            authForm.style.display = 'block';
-            formTitle.textContent = 'Login';
-            toggleAuth.style.display = 'inline';
-            forgotPassword.style.display = 'inline';
+            // Hide all forms
+            [loginForm, signupForm, forgotForm].forEach(form => {
+                form.style.display = 'none';
+                form.reset();
+            });
+
+            // Show selected form
+            switch(formType) {
+                case 'login':
+                    loginForm.style.display = 'block';
+                    formTitle.textContent = 'Login';
+                    toggleSignup.textContent = "Don't have an account? Sign Up";
+                    toggleForgot.style.display = 'inline';
+                    break;
+                case 'signup':
+                    signupForm.style.display = 'block';
+                    formTitle.textContent = 'Sign Up';
+                    toggleSignup.textContent = 'Already have an account? Login';
+                    toggleForgot.style.display = 'none';
+                    break;
+                case 'forgot':
+                    forgotForm.style.display = 'block';
+                    formTitle.textContent = 'Reset Password';
+                    toggleSignup.style.display = 'none';
+                    toggleForgot.textContent = 'Back to Login';
+                    break;
+            }
+        }
+
+        // Form event listeners
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            clearErrors();
+
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+
+            // Validate username
+            if (!patterns.username.test(username)) {
+                showError('loginUsernameError', 'Invalid username format');
+                return;
+            }
+
+            // Validate password
+            if (!patterns.password.test(password)) {
+                showError('loginPasswordError', 'Invalid password format');
+                return;
+            }
+
+            // Simulate API call
+            console.log('Login attempt:', { username, password });
+            showSuccess('Successfully logged in!');
         });
 
-        forgotPassword.addEventListener('click', (e) => {
+        signupForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            console.log('Forgot password clicked');
-            // Add your forgot password logic here
+            clearErrors();
+
+            const username = document.getElementById('signupUsername').value;
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            const confirmPassword = document.getElementById('signupConfirmPassword').value;
+
+            // Validate username
+            if (!patterns.username.test(username)) {
+                showError('signupUsernameError', 'Username must be 4-20 characters long and can contain letters, numbers, and underscores');
+                return;
+            }
+
+            // Validate email
+            if (!patterns.email.test(email)) {
+                showError('signupEmailError', 'Please enter a valid email address');
+                return;
+            }
+
+            // Validate password
+            if (!patterns.password.test(password)) {
+                showError('signupPasswordError', 'Password must be at least 8 characters long and contain both letters and numbers');
+                return;
+            }
+
+            // Validate password confirmation
+            if (password !== confirmPassword) {
+                showError('signupConfirmPasswordError', 'Passwords do not match');
+                return;
+            }
+
+            // Simulate API call
+            console.log('Signup attempt:', { username, email, password });
+            showSuccess('Account created successfully!');
+            setTimeout(() => switchForm('login'), 2000);
+        });
+
+        forgotForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            clearErrors();
+
+            const email = document.getElementById('forgotEmail').value;
+
+            // Validate email
+            if (!patterns.email.test(email)) {
+                showError('forgotEmailError', 'Please enter a valid email address');
+                return;
+            }
+
+            // Simulate API call
+            console.log('Password reset attempt:', { email });
+            showSuccess('Password reset link sent to your email!');
+            setTimeout(() => switchForm('login'), 2000);
+        });
+
+        // Toggle form visibility
+        toggleSignup.addEventListener('click', () => {
+            switchForm(currentForm === 'login' ? 'signup' : 'login');
+        });
+
+        toggleForgot.addEventListener('click', () => {
+            switchForm(currentForm === 'forgot' ? 'login' : 'forgot');
         });
     </script>
 </body>

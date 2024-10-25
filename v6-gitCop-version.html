@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to C# Converter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-bottom: 10px;
+        }
+        button {
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>JSON to C# Converter</h1>
+    <textarea id="inputJson" placeholder="Paste your JSON here"></textarea>
+    <br>
+    <button onclick="convertToJson()">Convert to JSON</button>
+    <button onclick="convertToCSharp()">Convert to C#</button>
+    <button onclick="copyToClipboard()">Copy to Clipboard</button>
+    <br>
+    <textarea id="outputResult" placeholder="Result will be displayed here"></textarea>
+
+    <script>
+        function convertToJson() {
+            const input = document.getElementById('inputJson').value;
+            try {
+                const jsonObject = JSON.parse(input);
+                document.getElementById('outputResult').value = JSON.stringify(jsonObject, null, 4);
+            } catch (error) {
+                alert('Invalid JSON');
+            }
+        }
+
+        function convertToCSharp() {
+            const input = document.getElementById('inputJson').value;
+            try {
+                const jsonObject = JSON.parse(input);
+                const csharpCode = generateCSharpClasses(jsonObject);
+                document.getElementById('outputResult').value = csharpCode;
+            } catch (error) {
+                alert('Invalid JSON');
+            }
+        }
+
+        function generateCSharpClasses(jsonObject) {
+            let csharpCode = `namespace QuickType
+{
+    using System;
+    using System.Collections.Generic;
+    using Newtonsoft.Json;
+`;
+
+            function parseObject(obj, className) {
+                let classCode = `    public partial class ${className}
+    {
+`;
+                for (let key in obj) {
+                    if (obj.hasOwnProperty(key)) {
+                        let type = typeof obj[key];
+                        let csharpType = "string";
+                        if (type === "number") {
+                            csharpType = Number.isInteger(obj[key]) ? "long" : "double";
+                        } else if (type === "boolean") {
+                            csharpType = "bool";
+                        } else if (type === "object") {
+                            if (Array.isArray(obj[key])) {
+                                csharpType = `${capitalizeFirstLetter(key)}[]`;
+                                parseObject(obj[key][0], capitalizeFirstLetter(key));
+                            } else {
+                                csharpType = capitalizeFirstLetter(key);
+                                parseObject(obj[key], capitalizeFirstLetter(key));
+                            }
+                        }
+                        classCode += `        [JsonProperty("${key}")]
+        public ${csharpType} ${capitalizeFirstLetter(key)} { get; set; }
+`;
+                    }
+                }
+                classCode += `    }
+`;
+                csharpCode += classCode;
+            }
+
+            function capitalizeFirstLetter(string) {
+                return string.charAt(0).toUpperCase() + string.slice(1);
+            }
+
+            parseObject(jsonObject, "Welcome");
+            csharpCode += `}
+`;
+            return csharpCode;
+        }
+
+        function copyToClipboard() {
+            const output = document.getElementById('outputResult');
+            output.select();
+            document.execCommand('copy');
+            alert('Copied to clipboard');
+        }
+    </script>
+</body>
+</html>
